@@ -12,11 +12,12 @@ import (
 	"google.golang.org/api/option"
 )
 
-type GoogleCloudRun struct {}
+type GoogleCloudRun struct{}
 
-// dagger -m github.com/vvaswani/daggerverse/google-cloud-run call deploy --project vikram-experiments --location us-central1 --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
-// dagger -m github.com/vvaswani/daggerverse/google-cloud-run call deploy --project vikram-experiments --location us-central1 --image docker.io/httpd --http-port 80 --credential env:GOOGLE_CREDENTIAL
-func (m *GoogleCloudRun) Deploy(project string, location string, image string, httpPort int32, credential *Secret) (string, error) {
+// dagger -m github.com/vvaswani/daggerverse/google-cloud-run call create-service --project vikram-experiments --location us-central1 --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
+
+// dagger -m github.com/vvaswani/daggerverse/google-cloud-run call create-service --project vikram-experiments --location us-central1 --image docker.io/httpd --http-port 80 --credential env:GOOGLE_CREDENTIAL
+func (m *GoogleCloudRun) CreateService(project string, location string, image string, httpPort int32, credential *Secret) (string, error) {
 	ctx := context.Background()
 	json, err := credential.Plaintext(ctx)
 	b := []byte(json)
@@ -49,18 +50,18 @@ func (m *GoogleCloudRun) Deploy(project string, location string, image string, h
 		},
 	}
 
-	op, err := gcrClient.CreateService(ctx, gcrServiceRequest)
+	gcrOperation, err := gcrClient.CreateService(ctx, gcrServiceRequest)
 	if err != nil {
 		panic(err)
 	}
 
-	resp, err := op.Wait(ctx)
+	gcrResponse, err := gcrOperation.Wait(ctx)
 	if err != nil {
 		panic(err)
 	}
 
 	gcrIamRequest := &iampb.SetIamPolicyRequest{
-		Resource: resp.Name,
+		Resource: gcrResponse.Name,
 		Policy: &iampb.Policy{
 			Bindings: []*iampb.Binding{
 				{
@@ -75,6 +76,52 @@ func (m *GoogleCloudRun) Deploy(project string, location string, image string, h
 		panic(err)
 	}
 
-	return resp.Uri, err
+	return gcrResponse.Uri, err
+
+}
+
+// dagger -m github.com/vikram-dagger/daggerverse/google-cloud-run call update-service --project vikram-experiments --location us-central1 --service myservice --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
+
+func (m *GoogleCloudRun) UpdateService(project string, location string, service string, image string, httpPort int32, credential *Secret) (string, error) {
+	ctx := context.Background()
+	json, err := credential.Plaintext(ctx)
+	b := []byte(json)
+	gcrClient, err := run.NewServicesClient(ctx, option.WithCredentialsJSON(b))
+	if err != nil {
+		panic(err)
+	}
+	defer gcrClient.Close()
+
+	gcrServiceRequest := &runpb.UpdateServiceRequest{
+		Service: &runpb.Service{
+			Name:    fmt.Sprintf("projects/%s/locations/%s/services/%s", project, location, service),
+			Ingress: runpb.IngressTraffic_INGRESS_TRAFFIC_ALL,
+			Template: &runpb.RevisionTemplate{
+				Containers: []*runpb.Container{
+					{
+						Image: image,
+						Ports: []*runpb.ContainerPort{
+							{
+								Name:          "http1",
+								ContainerPort: httpPort,
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	gcrOperation, err := gcrClient.UpdateService(ctx, gcrServiceRequest)
+	if err != nil {
+		panic(err)
+	}
+
+	gcrResponse, err := gcrOperation.Wait(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	return gcrResponse.Uri, err
 
 }
