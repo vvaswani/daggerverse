@@ -15,8 +15,8 @@ import (
 type GoogleCloudRun struct{}
 
 // dagger -m github.com/vvaswani/daggerverse/google-cloud-run call create-service --project vikram-experiments --location us-central1 --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
-
 // dagger -m github.com/vvaswani/daggerverse/google-cloud-run call create-service --project vikram-experiments --location us-central1 --image docker.io/httpd --http-port 80 --credential env:GOOGLE_CREDENTIAL
+// note: service account must have Editor, Service Account Token Creator, Cloud Run Admin roles
 func (m *GoogleCloudRun) CreateService(project string, location string, image string, httpPort int32, credential *Secret) (string, error) {
 	ctx := context.Background()
 	json, err := credential.Plaintext(ctx)
@@ -81,7 +81,6 @@ func (m *GoogleCloudRun) CreateService(project string, location string, image st
 }
 
 // dagger -m github.com/vikram-dagger/daggerverse/google-cloud-run call update-service --project vikram-experiments --location us-central1 --service myservice --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
-
 func (m *GoogleCloudRun) UpdateService(project string, location string, service string, image string, httpPort int32, credential *Secret) (string, error) {
 	ctx := context.Background()
 	json, err := credential.Plaintext(ctx)
