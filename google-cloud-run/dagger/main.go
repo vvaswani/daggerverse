@@ -2,7 +2,7 @@
 //
 // This module provides functions to create or update a Google Cloud Run service using a container image
 //
-// It requires Google Cloud service account credentials with Editor, Service Account Token Creator, Cloud Run Admin roles
+// It requires a Google Cloud service account with Editor, Service Account Token Creator, Cloud Run Admin roles
 
 package main
 
