@@ -1,8 +1,8 @@
 // A module to work with Google Cloud Run services
 //
-// This module provides functions to create or update a Google Cloud Run service using a container image
+// This module provides functions to create or update a Google Cloud Run service using a container image.
 //
-// It requires a Google Cloud service account with Editor, Service Account Token Creator, Cloud Run Admin roles
+// It requires a Google Cloud service account with Editor, Service Account Token Creator, Cloud Run Admin roles.
 
 package main
 
@@ -20,7 +20,7 @@ import (
 
 type GoogleCloudRun struct{}
 
-// Deploys an image to Google Cloud Run and 
+// Deploys an image to Google Cloud Run and
 // returns a string representing the URL of the new service
 //
 // example:
@@ -88,7 +88,7 @@ func (m *GoogleCloudRun) CreateService(project string, location string, image st
 
 }
 
-// Deploys an image to an existing Google Cloud Run service and 
+// Deploys an image to an existing Google Cloud Run service and
 // returns a string representing the URL of the updated service
 //
 // example:
