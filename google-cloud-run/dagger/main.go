@@ -23,9 +23,8 @@ type GoogleCloudRun struct{}
 // Deploys an image to Google Cloud Run and 
 // returns a string representing the URL of the new service
 //
-// examples:
+// example:
 // dagger call create-service --project myproject --location us-central1 --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
-// dagger call create-service --project myproject --location us-central1 --image docker.io/httpd --http-port 80 --credential env:GOOGLE_CREDENTIAL
 func (m *GoogleCloudRun) CreateService(project string, location string, image string, httpPort int32, credential *Secret) (string, error) {
 	ctx := context.Background()
 	json, err := credential.Plaintext(ctx)
