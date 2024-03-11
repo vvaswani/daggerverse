@@ -1,3 +1,9 @@
+// A module to work with Google Cloud Run services
+
+// This module provides functions to create or update a Google Cloud Run service using a container image
+//
+// It requires Google Cloud service account credentials with Editor, Service Account Token Creator, Cloud Run Admin roles
+
 package main
 
 import (
@@ -14,9 +20,12 @@ import (
 
 type GoogleCloudRun struct{}
 
-// dagger -m github.com/vvaswani/daggerverse/google-cloud-run call create-service --project vikram-experiments --location us-central1 --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
-// dagger -m github.com/vvaswani/daggerverse/google-cloud-run call create-service --project vikram-experiments --location us-central1 --image docker.io/httpd --http-port 80 --credential env:GOOGLE_CREDENTIAL
-// note: service account must have Editor, Service Account Token Creator, Cloud Run Admin roles
+// Deploys an image to Google Cloud Run and 
+// returns a string representing the URL of the new service
+//
+// examples:
+// dagger call create-service --project myproject --location us-central1 --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
+// dagger call create-service --project myproject --location us-central1 --image docker.io/httpd --http-port 80 --credential env:GOOGLE_CREDENTIAL
 func (m *GoogleCloudRun) CreateService(project string, location string, image string, httpPort int32, credential *Secret) (string, error) {
 	ctx := context.Background()
 	json, err := credential.Plaintext(ctx)
@@ -80,7 +89,11 @@ func (m *GoogleCloudRun) CreateService(project string, location string, image st
 
 }
 
-// dagger -m github.com/vikram-dagger/daggerverse/google-cloud-run call update-service --project vikram-experiments --location us-central1 --service myservice --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
+// Deploys an image to an existing Google Cloud Run service and 
+// returns a string representing the URL of the updated service
+//
+// example:
+// dagger call update-service --project myproject --location us-central1 --service myservice --image docker.io/nginx --http-port 80 --credential env:GOOGLE_CREDENTIAL
 func (m *GoogleCloudRun) UpdateService(project string, location string, service string, image string, httpPort int32, credential *Secret) (string, error) {
 	ctx := context.Background()
 	json, err := credential.Plaintext(ctx)
